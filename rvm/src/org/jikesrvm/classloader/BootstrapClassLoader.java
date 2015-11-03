@@ -32,13 +32,13 @@ import org.jikesrvm.util.ImmutableEntryHashMapRVM;
  * Implements an object that functions as the bootstrap class loader.
  * This class is a Singleton pattern.
  */
-public final class BootstrapClassLoader extends java.lang.ClassLoader {
+public class BootstrapClassLoader extends java.lang.ClassLoader {
 
   private final ImmutableEntryHashMapRVM<String, RVMType> loaded =
     new ImmutableEntryHashMapRVM<String, RVMType>();
 
   /** Places whence we load bootstrap .class files. */
-  private static String bootstrapClasspath;
+  private String bootstrapClasspath;
 
   /**
    * Set list of places to be searched for VM classes and resources.
@@ -46,7 +46,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
    *    format
    */
   public static void setBootstrapRepositories(String bootstrapClasspath) {
-    BootstrapClassLoader.bootstrapClasspath = bootstrapClasspath;
+    bootstrapClassLoader.bootstrapClasspath = bootstrapClasspath;
   }
 
   /**
@@ -54,7 +54,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
    *      in standard "classpath" format
    */
   public static String getBootstrapRepositories() {
-    return bootstrapClasspath;
+    return bootstrapClassLoader.bootstrapClasspath;
   }
 
   /**
@@ -70,7 +70,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
    */
   public static void boot(String bootstrapClasspath) {
     if (bootstrapClasspath != null) {
-      BootstrapClassLoader.bootstrapClasspath = bootstrapClasspath;
+      bootstrapClassLoader.bootstrapClasspath = bootstrapClasspath;
     }
     zipFileCache = new HashMap<String, ZipFile>();
     if (VM.runningVM) {
@@ -90,7 +90,7 @@ public final class BootstrapClassLoader extends java.lang.ClassLoader {
   }
 
   /** Prevent other classes from constructing one. */
-  private BootstrapClassLoader() {
+  protected BootstrapClassLoader() {
     super(null);
   }
 
