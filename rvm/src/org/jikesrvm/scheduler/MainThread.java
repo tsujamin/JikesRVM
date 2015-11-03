@@ -39,6 +39,7 @@ public final class MainThread extends Thread {
   private final String[] agents;
   private RVMMethod mainMethod;
   protected boolean launched = false;
+  private ClassLoader overrideClassLoader = null;
 
   private static final boolean dbg = false;
 
@@ -55,6 +56,14 @@ public final class MainThread extends Thread {
     if (dbg) {
       VM.sysWriteln("MainThread(args.length == ", args.length, "): constructor done");
     }
+  }
+  
+  /**
+   * Create "main" thread with an overriding classloader.
+   */
+  public MainThread(String[] args, ClassLoader cl) {
+    this(args);
+    overrideClassLoader = cl;
   }
 
   private void runAgents(ClassLoader cl) {
@@ -128,6 +137,10 @@ public final class MainThread extends Thread {
   RVMMethod getMainMethod() {
     return mainMethod;
   }
+  
+  void setOverrideClassLoader(ClassLoader cl) {
+    overrideClassLoader = cl;
+  }
 
   /**
    * Run "main" thread.
@@ -147,8 +160,8 @@ public final class MainThread extends Thread {
 
     if (dbg) VM.sysWriteln("MainThread.run() starting ");
 
-    // Set up application class loader
-    ClassLoader cl = RVMClassLoader.getApplicationClassLoader();
+    // Set up application class loader. Use override loader if set
+    ClassLoader cl = (overrideClassLoader == null) ? RVMClassLoader.getApplicationClassLoader() : overrideClassLoader;
     setContextClassLoader(cl);
 
     runAgents(cl);

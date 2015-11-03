@@ -22,6 +22,7 @@ import org.jikesrvm.adaptive.util.CompilerAdvice;
 import org.jikesrvm.classloader.Atom;
 import org.jikesrvm.classloader.BootstrapClassLoader;
 import org.jikesrvm.classloader.JMXSupport;
+import org.jikesrvm.classloader.OpenJDKContainerClassLoader;
 import org.jikesrvm.classloader.RVMClass;
 import org.jikesrvm.classloader.RVMClassLoader;
 import org.jikesrvm.classloader.RVMMember;
@@ -508,7 +509,13 @@ public class VM extends Properties {
     if (verboseBoot >= 2) VM.sysWriteln("Creating main thread");
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
-    mainThread = new MainThread(applicationArguments);
+    
+    if (Options.OpenJDKContainer) {
+      if (verboseBoot >= 1) VM.sysWriteln("Overridig mainThread classloader with OpenJDK container");
+      mainThread = new MainThread(applicationArguments, new OpenJDKContainerClassLoader());
+    } else {
+      mainThread = new MainThread(applicationArguments);
+    }
 
     // Schedule "main" thread for execution.
     if (verboseBoot >= 1) VM.sysWriteln("Starting main thread");
