@@ -176,7 +176,9 @@ public final class TypeReference {
   public static final TypeReference BaselineSaveLSRegisters = findOrCreate(org.vmmagic.pragma.BaselineSaveLSRegisters.class);
   public static final TypeReference ReferenceFieldsVary = findOrCreate(org.vmmagic.pragma.ReferenceFieldsVary.class);
 
-
+  public static final TypeReference ReplaceClass = findOrCreate(org.vmmagic.pragma.ReplaceClass.class);
+  public static final TypeReference ReplaceMember = findOrCreate(org.vmmagic.pragma.ReplaceMember.class);
+  
   public static final TypeReference ReferenceMaps =
       findOrCreate(org.jikesrvm.compilers.baseline.ReferenceMaps.class);
   public static final TypeReference JNIFunctions = findOrCreate(org.jikesrvm.jni.JNIFunctions.class);
@@ -238,21 +240,26 @@ public final class TypeReference {
     if (cl == null) {
       cl = bootstrapCL;
     } else if (cl != bootstrapCL) {
-      if (tn.isClassDescriptor()) {
-        if (tn.isBootstrapClassDescriptor()) {
+      if (cl instanceof OpenJDKContainerClassLoader) {
+        if (tn.isRVMDescriptor())
           cl = bootstrapCL;
-        }
-      } else if (tn.isArrayDescriptor()) {
-        Atom innermostElementType = tn.parseForInnermostArrayElementDescriptor();
-        if (innermostElementType.isClassDescriptor()) {
-          if (innermostElementType.isBootstrapClassDescriptor()) {
+        } else {
+        if (tn.isClassDescriptor()) {
+          if (tn.isBootstrapClassDescriptor()) {
+            cl = bootstrapCL;
+          }
+        } else if (tn.isArrayDescriptor()) {
+          Atom innermostElementType = tn.parseForInnermostArrayElementDescriptor();
+          if (innermostElementType.isClassDescriptor()) {
+            if (innermostElementType.isBootstrapClassDescriptor()) {
+              cl = bootstrapCL;
+            }
+          } else {
             cl = bootstrapCL;
           }
         } else {
           cl = bootstrapCL;
         }
-      } else {
-        cl = bootstrapCL;
       }
     }
     return findOrCreateInternal(cl, tn);

@@ -29,6 +29,9 @@ Dump a stack trace (via VM.syswrite) upon exit
 TraceClassLoading false verboseTraceClassLoading
 More detailed tracing then -verbose:class
 
+OpenJDKContainer true
+Put applications classes and OpenJDK classes in the container
+
 ErrorsFatal false errorsFatal
 Exit when non-fatal errors are detected; used for regression testing
 

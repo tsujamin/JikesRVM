@@ -81,6 +81,7 @@ public class CommandLineArgs {
     BOOTCLASSPATH_P_ARG,
     BOOTCLASSPATH_A_ARG,
     BOOTSTRAP_CLASSES_ARG,
+    BOOTSTRAP_OPENJDK_CLASSES_ARG,
     AVAILABLE_PROCESSORS_ARG
   }
 
@@ -188,6 +189,7 @@ public class CommandLineArgs {
                                             new Prefix("-Xbootclasspath/p:", PrefixType.BOOTCLASSPATH_P_ARG),
                                             new Prefix("-Xbootclasspath/a:", PrefixType.BOOTCLASSPATH_A_ARG),
                                             new Prefix("-X:vmClasses=", PrefixType.BOOTSTRAP_CLASSES_ARG),
+                                            new Prefix("-X:openJDKClasses=", PrefixType.BOOTSTRAP_OPENJDK_CLASSES_ARG),
                                             new Prefix("-X:availableProcessors=", PrefixType.AVAILABLE_PROCESSORS_ARG),
                                             new Prefix("-X:irc:help$", PrefixType.IRC_HELP_ARG),
                                             new Prefix("-X:irc$", PrefixType.IRC_HELP_ARG),
@@ -510,6 +512,18 @@ public class CommandLineArgs {
     return result.toString();
   }
 
+  public static String getOpenJDKClasses() {
+    String[] jdkClasses = getArgs(PrefixType.BOOTSTRAP_OPENJDK_CLASSES_ARG);
+    if (jdkClasses == null)
+      return null;
+    else {
+      if (jdkClasses.length == 0)
+        return null;
+      else
+        return jdkClasses[jdkClasses.length - 1];
+    }
+  }
+  
   /**
    * Stage1 processing of virtual machine directives appearing in argument list.
    * We try to process as many classes of command line arguments as possible here.
