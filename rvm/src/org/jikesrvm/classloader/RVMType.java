@@ -498,7 +498,7 @@ public abstract class RVMType extends AnnotatedElement {
   /** @return is this type the class Object? */
   @Uninterruptible
   public final boolean isJavaLangObjectType() {
-    return this == JavaLangObjectType;
+    return this.typeRef.name == TypeReference.JavaLangObject.name;
   }
 
   /** @return is this type the class Throwable? */

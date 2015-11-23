@@ -38,7 +38,7 @@ public class BootstrapClassLoader extends java.lang.ClassLoader {
     new ImmutableEntryHashMapRVM<String, RVMType>();
 
   /** Places whence we load bootstrap .class files. */
-  private String bootstrapClasspath;
+  protected String bootstrapClasspath;
 
   /**
    * Set list of places to be searched for VM classes and resources.

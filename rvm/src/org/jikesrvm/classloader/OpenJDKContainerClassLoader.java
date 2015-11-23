@@ -20,48 +20,63 @@ import org.jikesrvm.util.ImmutableEntryHashSetRVM;
 
 public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
   
-  private final ImmutableEntryHashSetRVM<Atom> loadedRepacementClasses = new ImmutableEntryHashSetRVM<Atom>();
+  private static int containerCount = 0;
+  
+  private final ImmutableEntryHashSetRVM<Atom> checkedReplacementClasses = new ImmutableEntryHashSetRVM<Atom>();
+  private final String myName;
   
   public OpenJDKContainerClassLoader() {
-    if (VM.VerifyAssertions) VM._assert(Options.OpenJDKContainer);
-    
-    setBootstrapRepositories(CommandLineArgs.getOpenJDKClasses());
+    this(CommandLineArgs.getOpenJDKClasses());
   }
   
-  public OpenJDKContainerClassLoader(String openJDKClasspath) {
-    this();
-    setBootstrapRepositories(openJDKClasspath);
+  public OpenJDKContainerClassLoader(String containerClassPath) {
+    if (VM.VerifyAssertions) VM._assert(Options.OpenJDKContainer);
+    
+    // set name of classloader based on count of intantiated loaders
+    myName = "OpenJDKContainerClassLoader-" + Integer.toString(containerCount);
+    containerCount++;
+
+    if(containerClassPath == null) VM.sysFail("No OpenJDKContainer classpath provided");
+    bootstrapClasspath = containerClassPath;
+
+    if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: created " + myName + " with classpath \"" + bootstrapClasspath + "\"");
   }
   
   @Override
   public synchronized Class<?> loadClass(String className, boolean resolveClass) throws ClassNotFoundException {
-    Class<?> loadedClass = super.loadClass(className, false);
+    final Atom classNameAtom, replacementClassNameAtom;
+    Class<?> loadedClass = null;
     
-    if (className.startsWith("L") && className.endsWith(";")) {
-      className = className.substring(1, className.length() - 2);
-    } 
+    // target class must be in correct format for bootstrap class check
+    if (className.startsWith("L") && className.endsWith(";"))
+      classNameAtom = Atom.findOrCreateAsciiAtom(className.replace('.', '/'));
+    else
+      classNameAtom = Atom.findOrCreateAsciiAtom('L' + className.replace('.', '/') + ';');
     
+    if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: " + classNameAtom + " is a bootstrap class descriptor? " + classNameAtom.isBootstrapClassDescriptor());
+    if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: " + classNameAtom + " has been checked for replacement? " + checkedReplacementClasses.contains(classNameAtom));
     
-    try {
-      //TODO Adopt better nomenclature for replacement classes
-      Atom replacementClassName = Atom.findAsciiAtom("OpenJDK_" + className.replace('.', '_'));
-      
-      //Check if there has been an attempt to load the replacement JDK class of this name
-      if (!loadedRepacementClasses.contains(replacementClassName) && replacementClassName.isBootstrapClassDescriptor()) {
-        if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: Checking for replacement class for " + className);
-
-        loadedRepacementClasses.add(replacementClassName);
-
+    // load the target class
+    loadedClass = super.loadClass(className, false);
+    
+    try {      
+      // Check if there has been an attempt to load the replacement JDK class of this name
+      if (classNameAtom.isBootstrapClassDescriptor() && !checkedReplacementClasses.contains(classNameAtom)) {
+        checkedReplacementClasses.add(classNameAtom);
+        replacementClassNameAtom = toReplacementClassAtom(classNameAtom);
+        
+        if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: Checking for replacement class for " + classNameAtom + " named " + replacementClassNameAtom);
+        
         // Load, resolve and instantiate the replacement class if it exists.
-        RVMType replacementClassType = TypeReference.findOrCreate(findClass(replacementClassName.toString())).resolve();
+        RVMType replacementClassType = TypeReference.findOrCreate(findClass(replacementClassNameAtom.toString())).resolve();
         replacementClassType.asClass().resolve();
         replacementClassType.asClass().instantiate();
         
-        if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: Replacement class " + replacementClassName + " loaded for " + className);
+        if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: Replacement class " + replacementClassNameAtom + " loaded for " + classNameAtom);
         
       }
     } catch (ClassNotFoundException e) {
-      if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: No replacement class for " + className);
+      if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: No replacement class for " + classNameAtom);
     }
     
     // Resolve the target class if required
@@ -71,4 +86,18 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
     return loadedClass;
   }
   
+  private static Atom toReplacementClassAtom(Atom classNameAtom) {
+    String className = classNameAtom.toString();
+    
+    if(className.startsWith("L") && className.endsWith(";"))
+      className = className.substring(1, className.length() - 1);
+    
+    //TODO Adopt better nomenclature for replacement classes
+    return Atom.findOrCreateAsciiAtom("LOpenJDK_" + className.replace('.', '_').replace('/', '_') + ';');
+  }
+  
+  @Override
+  public String toString() {
+    return myName;
+  }  
 }
