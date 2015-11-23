@@ -18,6 +18,14 @@ import org.jikesrvm.Options;
 import org.jikesrvm.VM;
 import org.jikesrvm.util.ImmutableEntryHashSetRVM;
 
+/**
+ * Implements a bootstrap classloader that can be used to create a container within Jikes that uses OpenJDK
+ * 
+ * When bootstrap classes are loaded, such as java.lang.Object, the classloader searches for replacement classes
+ * that implement missing functionality (such as native methods implemented by hotspot)
+ * 
+ * @author Benjamin George Roberts
+ */
 public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
   
   private static int containerCount = 0;
@@ -25,10 +33,17 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
   private final ImmutableEntryHashSetRVM<Atom> checkedReplacementClasses = new ImmutableEntryHashSetRVM<Atom>();
   private final String myName;
   
+  /**
+   * Instantiate a container classloader using the OpenJDK classpath provided by the commandline
+   */
   public OpenJDKContainerClassLoader() {
     this(CommandLineArgs.getOpenJDKClasses());
   }
   
+  /**
+   * Instantiate a container classloader
+   * @param containerClassPath Classpath container will load classes from
+   */
   public OpenJDKContainerClassLoader(String containerClassPath) {
     if (VM.VerifyAssertions) VM._assert(Options.OpenJDKContainer);
     
@@ -91,6 +106,16 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
     return loadedClass;
   }
   
+  /**
+   * Return an atom representing the name of the corresponding replacement class.
+   * This defines the naming nomenclature that all replacement classes must conform to.
+   * 
+   * Example:
+   * If "Ljava.lang.Object;" were to be loaded, the classloader would check to see if
+   * "LOpenJDK_java_lang_Object;" were present in the classpath.
+   * @param classNameAtom Name of class to find replacement of
+   * @return Name of corresponding replacement class
+   */
   private static Atom toReplacementClassAtom(Atom classNameAtom) {
     String className = classNameAtom.toString();
     
