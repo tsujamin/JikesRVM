@@ -316,7 +316,7 @@ public class BootstrapClassLoader extends java.lang.ClassLoader {
       name = name.substring(File.separator.length());
     }
 
-    StringTokenizer tok = new StringTokenizer(getBootstrapRepositories(), File.pathSeparator);
+    StringTokenizer tok = new StringTokenizer(bootstrapClasspath, File.pathSeparator);
 
     while (tok.hasMoreElements()) {
       try {
