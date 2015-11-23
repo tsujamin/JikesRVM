@@ -111,8 +111,8 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
    * This defines the naming nomenclature that all replacement classes must conform to.
    * 
    * Example:
-   * If "Ljava.lang.Object;" were to be loaded, the classloader would check to see if
-   * "LOpenJDK_java_lang_Object;" were present in the classpath.
+   * If "Ljava/lang/Object;" were to be loaded, the classloader would check to see if
+   * "Lorg/jikesrvm/openjdk6/java/lang/Object;" were present in the classpath.
    * @param classNameAtom Name of class to find replacement of
    * @return Name of corresponding replacement class
    */
@@ -123,7 +123,7 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
       className = className.substring(1, className.length() - 1);
     
     //TODO Adopt better nomenclature for replacement classes
-    return Atom.findOrCreateAsciiAtom("LOpenJDK_" + className.replace('.', '_').replace('/', '_') + ';');
+    return Atom.findOrCreateAsciiAtom("Lorg/jikesrvm/openjdk6/" + className + ';');
   }
   
   @Override
