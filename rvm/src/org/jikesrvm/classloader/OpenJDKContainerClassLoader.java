@@ -57,7 +57,11 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
     if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: " + classNameAtom + " has been checked for replacement? " + checkedReplacementClasses.contains(classNameAtom));
     
     // load the target class
-    loadedClass = super.loadClass(className, false);
+    RVMType loadedType = loaded.get(className);
+    if(loadedType != null)
+      loadedClass = loadedType.getClassForType();
+    else
+      loadedClass = findClass(className);
     
     try {      
       // Check if there has been an attempt to load the replacement JDK class of this name
@@ -77,6 +81,7 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
       }
     } catch (ClassNotFoundException e) {
       if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: No replacement class for " + classNameAtom);
+      // e.printStackTrace();
     }
     
     // Resolve the target class if required

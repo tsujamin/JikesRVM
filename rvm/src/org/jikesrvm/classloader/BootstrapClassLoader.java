@@ -34,7 +34,7 @@ import org.jikesrvm.util.ImmutableEntryHashMapRVM;
  */
 public class BootstrapClassLoader extends java.lang.ClassLoader {
 
-  private final ImmutableEntryHashMapRVM<String, RVMType> loaded =
+  protected final ImmutableEntryHashMapRVM<String, RVMType> loaded =
     new ImmutableEntryHashMapRVM<String, RVMType>();
 
   /** Places whence we load bootstrap .class files. */
@@ -187,7 +187,7 @@ public class BootstrapClassLoader extends java.lang.ClassLoader {
       // class types: try to find the class file
       try {
         if (className.startsWith("L") && className.endsWith(";")) {
-          className = className.substring(1, className.length() - 2);
+          className = className.substring(1, className.length() - 1);
         }
         InputStream is = getResourceAsStream(className.replace('.', File.separatorChar) + ".class");
         if (is == null) throw new ClassNotFoundException(className);
