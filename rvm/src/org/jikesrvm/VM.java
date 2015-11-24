@@ -510,7 +510,7 @@ public class VM extends Properties {
     // Create main thread.
     if (verboseBoot >= 1) VM.sysWriteln("Constructing mainThread");
     
-    if (Options.OpenJDKContainer) {
+    if (Options.OpenJDKContainer && CommandLineArgs.getOpenJDKClasses() != null) {
       if (verboseBoot >= 1) VM.sysWriteln("Overridig mainThread classloader with OpenJDK container");
       mainThread = new MainThread(applicationArguments, new OpenJDKContainerClassLoader());
     } else {
