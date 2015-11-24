@@ -1298,8 +1298,10 @@ public final class RVMClass extends RVMType {
     superclassIds = DynamicTypeCheck.buildSuperclassIds(this);
     doesImplement = DynamicTypeCheck.buildDoesImplement(this);
 
-    if (isAnnotationDeclared(TypeReference.ReplaceClass))
+    if (isAnnotationDeclared(TypeReference.ReplaceClass)) {
+      if (VM.verboseClassLoading) VM.sysWriteln("Replace: " + this.typeRef.name + " (" + this.typeRef.classloader +") is @ReplaceClass annotated");
       replaceFieldsAndStaticMethods();
+    }
     
     // can't move this beyond "finalize" code block as findVirtualMethod
     // assumes state >= RESOLVED, no allocation occurs until

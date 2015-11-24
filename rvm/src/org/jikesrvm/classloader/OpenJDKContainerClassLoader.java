@@ -112,7 +112,7 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
    * 
    * Example:
    * If "Ljava/lang/Object;" were to be loaded, the classloader would check to see if
-   * "Lorg/jikesrvm/openjdk6/java/lang/Object;" were present in the classpath.
+   * "Lopenjdk6/java/lang/Object;" were present in the classpath.
    * @param classNameAtom Name of class to find replacement of
    * @return Name of corresponding replacement class
    */
@@ -122,8 +122,7 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
     if(className.startsWith("L") && className.endsWith(";"))
       className = className.substring(1, className.length() - 1);
     
-    //TODO Adopt better nomenclature for replacement classes
-    return Atom.findOrCreateAsciiAtom("Lorg/jikesrvm/openjdk6/" + className + ';');
+    return Atom.findOrCreateAsciiAtom("Lopenjdk6/" + className + ';');
   }
   
   @Override
