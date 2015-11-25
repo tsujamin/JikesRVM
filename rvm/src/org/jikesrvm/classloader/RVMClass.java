@@ -38,6 +38,7 @@ import org.jikesrvm.runtime.StackBrowser;
 import org.jikesrvm.runtime.Statics;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.Pure;
+import org.vmmagic.pragma.ReplaceMember;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Offset;
 
@@ -1335,8 +1336,19 @@ public final class RVMClass extends RVMType {
    * Replace the virtual methods by resetting CodeArray address in TIB.
    */
   private void replaceMember(TypeReference targetClassRef, RVMClass targetClass, RVMMember member) {
-    RVMMember targetMember = MemberReference.findOrCreate(targetClassRef, member.getName(), member.getDescriptor()).peekResolvedMember();
+    final ReplaceMember annotation = member.getAnnotation(org.vmmagic.pragma.ReplaceMember.class);
+    final Atom targetMemberName;
+    
+    if(annotation != null && annotation.value().length() > 0)
+      targetMemberName = Atom.findOrCreateAsciiAtom(annotation.value());
+    else
+      targetMemberName = member.getName();
+     
+    final RVMMember targetMember = MemberReference.findOrCreate(targetClassRef, targetMemberName, member.getDescriptor()).peekResolvedMember();
 
+    if (VM.verboseClassLoading)
+      VM.sysWriteln("Replace: " + "replacing member " + targetMemberName + " of class " + targetClass.getDescriptor() + "(" + targetClass.getClassLoader() + ")");
+    
     if (member instanceof RVMField) {
       member.setOffset(targetMember.getOffset());
     } else if (member instanceof RVMMethod) {
@@ -1346,8 +1358,6 @@ public final class RVMClass extends RVMType {
       targetMethod.replaceCompiledMethod(thisMethod.genCode());
 
     }
-    if (VM.verboseClassLoading)
-      VM.sysWriteln("Replace: " + " replacing member " + member.getName() + " of class " + targetClass.getDescriptor() + "(" + targetClass.getClassLoader() + ")");
   }
 
   /**

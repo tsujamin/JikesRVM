@@ -20,11 +20,13 @@ import org.vmmagic.Pragma;
 
 /**
  * The ReplaceMember annotation indicates that this member will replace the member
- * who has same name and same descriptor in the targeting class which is referred
- * by the <code>value()</code> of <code>ReplaceClass</code> annotation.
+ * who has the same name, or has the name given by <code>value()<code>, and same 
+ * descriptor in the targeting class which is referred by the <code>value()</code> of 
+ * <code>ReplaceClass</code> annotation.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Pragma
 public @interface ReplaceMember {
+  String value() default "";
 }

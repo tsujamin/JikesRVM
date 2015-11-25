@@ -59,7 +59,7 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
   
   @Override
   public synchronized Class<?> loadClass(String className, boolean resolveClass) throws ClassNotFoundException {
-    final Atom classNameAtom, replacementClassNameAtom;
+    Atom classNameAtom, replacementClassNameAtom = null;
     Class<?> loadedClass = null;
     
     // target class must be in correct format for bootstrap class check
@@ -95,8 +95,14 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
         
       }
     } catch (ClassNotFoundException e) {
-      if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: No replacement class for " + classNameAtom);
+      if(VM.TraceClassLoading) 
+        VM.sysWriteln("OpenJDKContainer: No replacement class for " + classNameAtom);
       // e.printStackTrace();
+    } catch(NoSuchMethodError e) {
+      VM.sysWriteln("OpenJDKContainer: Failed to load replacement class " + replacementClassNameAtom + " for " + classNameAtom);
+      VM.sysWriteln(e.toString());
+      e.printStackTrace();
+      throw new ClassNotFoundException("Failed to load replacement class " + replacementClassNameAtom, e);
     }
     
     // Resolve the target class if required
