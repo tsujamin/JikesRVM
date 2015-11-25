@@ -79,8 +79,9 @@ Extent determinePageSize();
 #define BOOTCLASSPATH_P_INDEX         VMCLASSES_INDEX + 1
 #define BOOTCLASSPATH_A_INDEX         BOOTCLASSPATH_P_INDEX + 1
 #define PROCESSORS_INDEX              BOOTCLASSPATH_A_INDEX + 1
+#define OPENJDK_CLASSES_INDEX         PROCESSORS_INDEX + 1
 
-#define numNonstandardArgs      PROCESSORS_INDEX + 1
+#define numNonstandardArgs      OPENJDK_CLASSES_INDEX + 1
 
 static const char* nonStandardArgs[numNonstandardArgs] = {
   "-X",
@@ -103,6 +104,7 @@ static const char* nonStandardArgs[numNonstandardArgs] = {
   "-Xbootclasspath/p:",
   "-Xbootclasspath/a:",
   "-X:availableProcessors=",
+  "-X:openJDKClasses=",
 };
 
 // a NULL-terminated list.
@@ -137,6 +139,7 @@ static const char* nonStandardUsage[] = {
   "  -Xbootclasspath/a:<cp>     (a)ppend specified classpath to bootclasspath",
   "  -X:availableProcessors=<n> desired level of application parallelism (set",
   "                             -X:gc:threads to control gc parallelism)",
+  "  -X:openJDKClasses=<syntax> Option description here",
   NULL                         /* End of messages */
 };
 
@@ -436,7 +439,8 @@ static const char ** processCommandLineArguments(JavaVMInitArgs *initArgs, const
         || STRNEQUAL(token, nonStandardArgs[VMCLASSES_INDEX], 13)
         || STRNEQUAL(token, nonStandardArgs[BOOTCLASSPATH_P_INDEX], 18)
         || STRNEQUAL(token, nonStandardArgs[BOOTCLASSPATH_A_INDEX], 18)
-        || STRNEQUAL(token, nonStandardArgs[PROCESSORS_INDEX], 14))
+        || STRNEQUAL(token, nonStandardArgs[PROCESSORS_INDEX], 14)
+        || STRNEQUAL(token, nonStandardArgs[OPENJDK_CLASSES_INDEX], 16))
     {
       CLAs[n_JCLAs++]=token;
       continue;
