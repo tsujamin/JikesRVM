@@ -1339,6 +1339,9 @@ public final class RVMClass extends RVMType {
     final ReplaceMember annotation = member.getAnnotation(org.vmmagic.pragma.ReplaceMember.class);
     final Atom targetMemberName;
     
+    if(VM.verboseClassLoading)
+      VM.sysWriteln("Replace: processing replacememt member " + member.getName());
+    
     if(annotation != null && annotation.value().length() > 0)
       targetMemberName = Atom.findOrCreateAsciiAtom(annotation.value());
     else

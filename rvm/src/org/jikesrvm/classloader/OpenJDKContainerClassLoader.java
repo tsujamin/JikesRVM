@@ -87,9 +87,10 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
         if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: Checking for replacement class for " + classNameAtom + " named " + replacementClassNameAtom);
         
         // Load, resolve and instantiate the replacement class if it exists.
-        RVMType replacementClassType = TypeReference.findOrCreate(findClass(replacementClassNameAtom.toString())).resolve();
-        replacementClassType.asClass().resolve();
-        replacementClassType.asClass().instantiate();
+        RVMClass replacementClass = TypeReference.findOrCreate(findClass(replacementClassNameAtom.toString())).resolve().asClass();
+        replacementClass.resolve();
+        replacementClass.instantiate();
+        replacementClass.initialize();
         
         if(VM.TraceClassLoading) VM.sysWriteln("OpenJDKContainer: Replacement class " + replacementClassNameAtom + " loaded for " + classNameAtom);
         
