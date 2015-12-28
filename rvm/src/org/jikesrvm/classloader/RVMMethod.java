@@ -671,7 +671,7 @@ public abstract class RVMMethod extends RVMMember {
    *
    */
   public final synchronized void replaceCompiledMethod(CompiledMethod compiledMethod) {
-    if (VM.VerifyAssertions) VM._assert(getDeclaringClass().isInstantiated());
+    if (VM.VerifyAssertions) VM._assert((this.isStatic() && getDeclaringClass().isResolved()) || getDeclaringClass().isInstantiated());
     // If we're replacing with a non-null compiledMethod, ensure that is still valid!
     if (compiledMethod != null) {
       synchronized (compiledMethod) {
