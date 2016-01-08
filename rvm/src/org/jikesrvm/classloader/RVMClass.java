@@ -1409,26 +1409,6 @@ public final class RVMClass extends RVMType {
           continue;
         replaceMember(targetClassRef, targetClass, m);
       }
-      //resolve target class before reset the offset for fields and static methods
-      targetClass.resolve();
-
-      for (RVMField f : staticFields) {
-        if (!f.isAnnotationDeclared(TypeReference.ReplaceMember))
-          continue;
-        replaceMember(targetClassRef, targetClass, f);
-      }
-
-      for (RVMField f : instanceFields){
-        if (!f.isAnnotationDeclared(TypeReference.ReplaceMember))
-          continue;
-        replaceMember(targetClassRef, targetClass, f);
-      }
-
-      for (RVMMethod m : staticMethods) {
-        if (!m.isAnnotationDeclared(TypeReference.ReplaceMember))
-          continue;
-        replaceMember(targetClassRef, targetClass, m);
-      }
     }else {
       if (VM.verboseClassLoading)
         VM.sysWriteln("Replace: replacing virtual methods of class " + targetClass.getDescriptor() + "(" + targetClass.getClassLoader() + ")");
