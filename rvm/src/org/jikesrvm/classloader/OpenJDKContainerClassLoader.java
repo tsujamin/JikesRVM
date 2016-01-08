@@ -31,7 +31,6 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
   private static int containerCount = 0;
   
   private final ImmutableEntryHashSetRVM<Atom> checkedReplacementClasses = new ImmutableEntryHashSetRVM<Atom>();
-  private final String myName;
   
   /**
    * Instantiate a container classloader using the OpenJDK classpath provided by the commandline
@@ -45,12 +44,11 @@ public class OpenJDKContainerClassLoader extends BootstrapClassLoader {
    * @param containerClassPath Classpath container will load classes from
    */
   public OpenJDKContainerClassLoader(String containerClassPath) {
-    if (VM.VerifyAssertions) VM._assert(Options.OpenJDKContainer);
-    
-    // set name of classloader based on count of intantiated loaders
-    myName = "OpenJDKContainerClassLoader-" + Integer.toString(containerCount);
+    super("OpenJDKContainerClassLoader-" + Integer.toString(containerCount));
     containerCount++;
 
+    if (VM.VerifyAssertions) VM._assert(Options.OpenJDKContainer);
+    
     if(containerClassPath == null) VM.sysFail("No OpenJDKContainer classpath provided");
     bootstrapClasspath = containerClassPath;
 

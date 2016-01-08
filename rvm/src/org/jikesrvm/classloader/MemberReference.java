@@ -130,7 +130,7 @@ public abstract class MemberReference {
     try {
       parser.nextToken(); // discard <
       clName = parser.nextToken();
-      if ((!clName.equals(BootstrapClassLoader.myName)) && (boot)) {
+      if ((!clName.equals(BootstrapClassLoader.getBootstrapClassLoader().myName)) && (boot)) {
         return null;
       }
       Atom dc = Atom.findOrCreateUnicodeAtom(parser.nextToken());
@@ -138,7 +138,7 @@ public abstract class MemberReference {
       Atom md = Atom.findOrCreateUnicodeAtom(parser.nextToken());
       parser.nextToken(); // discard '>'
       ClassLoader cl = null;
-      if (clName.equals(BootstrapClassLoader.myName)) {
+      if (clName.equals(BootstrapClassLoader.getBootstrapClassLoader().myName)) {
         cl = BootstrapClassLoader.getBootstrapClassLoader();
       } else if (clName.equals(ApplicationClassLoader.myName)) {
         cl = RVMClassLoader.getApplicationClassLoader();

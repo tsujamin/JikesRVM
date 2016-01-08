@@ -89,9 +89,13 @@ public class BootstrapClassLoader extends java.lang.ClassLoader {
     }
   }
 
-  /** Prevent other classes from constructing one. */
-  protected BootstrapClassLoader() {
+  protected BootstrapClassLoader(String name) {
     super(null);
+    myName = name;
+  }
+  
+  private BootstrapClassLoader() {
+    this("BootstrapCL");
   }
 
   /* Interface */
@@ -219,7 +223,7 @@ public class BootstrapClassLoader extends java.lang.ClassLoader {
 
   /** Keep this a static field, since it's looked at in
    *  {@link MemberReference#parse}. */
-  public static final String myName = "BootstrapCL";
+  public final String myName;
 
   @Override
   public String toString() {

@@ -37,6 +37,7 @@ import org.jikesrvm.ArchitectureSpecific.StackframeLayoutConstants;
 import org.jikesrvm.ArchitectureSpecific;
 import org.jikesrvm.VM;
 import org.jikesrvm.Configuration;
+import org.jikesrvm.Options;
 import org.jikesrvm.Services;
 import org.jikesrvm.UnimplementedError;
 import org.jikesrvm.adaptive.OnStackReplacementEvent;
@@ -81,6 +82,7 @@ import org.jikesrvm.classloader.RVMMethod;
 import org.jikesrvm.compilers.opt.runtimesupport.OptCompiledMethod;
 import org.jikesrvm.compilers.opt.runtimesupport.OptMachineCodeMap;
 import org.jikesrvm.compilers.opt.runtimesupport.OptEncodedCallSiteTree;
+import org.jikesrvm.classloader.BootstrapClassLoader;
 import org.jikesrvm.classloader.MemberReference;
 import org.jikesrvm.classloader.NormalMethod;
 import org.jikesrvm.tuningfork.TraceEngine;
@@ -5642,6 +5644,14 @@ public final class RVMThread extends ThreadContext {
       VM.sysWrite("<unknown method>");
     } else {
       VM.sysWrite(method.getDeclaringClass().getDescriptor());
+     
+      //Print out classloader if we're in container mode
+      if(Options.OpenJDKContainer && VM.runningVM) {
+        VM.sysWrite(" (");
+        VM.sysWrite(((BootstrapClassLoader) method.getDeclaringClass().getClassLoader()).myName);
+        VM.sysWrite(")");
+      }
+      
       VM.sysWrite(" ");
       VM.sysWrite(method.getName());
       VM.sysWrite(method.getDescriptor());
