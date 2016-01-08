@@ -38,6 +38,7 @@ import org.jikesrvm.runtime.StackBrowser;
 import org.jikesrvm.runtime.Statics;
 import org.vmmagic.pragma.NonMoving;
 import org.vmmagic.pragma.Pure;
+import org.vmmagic.pragma.ReplaceClass;
 import org.vmmagic.pragma.ReplaceMember;
 import org.vmmagic.pragma.Uninterruptible;
 import org.vmmagic.unboxed.Offset;
@@ -162,6 +163,9 @@ public final class RVMClass extends RVMType {
 
   /** type and virtual method dispatch table for class */
   private TIB typeInformationBlock;
+  
+  /** Does class replace methods of another class {@link ReplaceClass} */
+  private boolean doesReplaceClass = false;
 
   // --- Memory manager support --- //
 
@@ -994,6 +998,7 @@ public final class RVMClass extends RVMType {
     this.sourceName = sourceName;
     this.classInitializerMethod = classInitializerMethod;
     this.signature = signature;
+    this.doesReplaceClass = isAnnotationDeclared(TypeReference.ReplaceClass);
     
     //Check if this class's parent is Object and we're in a container
     if(superClass != null && superClass.isJavaLangObjectType() && getClassLoader() instanceof OpenJDKContainerClassLoader) {
@@ -1305,7 +1310,7 @@ public final class RVMClass extends RVMType {
     superclassIds = DynamicTypeCheck.buildSuperclassIds(this);
     doesImplement = DynamicTypeCheck.buildDoesImplement(this);
 
-    if (isAnnotationDeclared(TypeReference.ReplaceClass)) {
+    if (doesReplaceClass) {
       if (VM.verboseClassLoading) VM.sysWriteln("Replace: " + this.typeRef.name + " (" + this.typeRef.classloader +") is @ReplaceClass annotated");
       replaceFieldsAndStaticMethods();
     }
@@ -1397,6 +1402,7 @@ public final class RVMClass extends RVMType {
         VM.sysWriteln("Replace: replacing fields and static methods of class " + targetClass.getDescriptor() + "(" + targetClass.getClassLoader() + ")");
       //resolve target class before reset the offset for fields and static methods
       targetClass.resolve();
+      targetClass.classInitializerMethod = classInitializerMethod;
 
       for (RVMField f : staticFields) {
         if (!f.isAnnotationDeclared(TypeReference.ReplaceMember))
@@ -1529,7 +1535,7 @@ public final class RVMClass extends RVMType {
       }
     }
     
-    if (isAnnotationDeclared(TypeReference.ReplaceClass))
+    if (doesReplaceClass)
       replaceVirtualMethods();
 
     if (!isInterface()) {
@@ -1638,9 +1644,9 @@ public final class RVMClass extends RVMType {
       superClass.initialize();
     }
 
-    // run <clinit>
+    // run <clinit> unless we are @ReplaceClass annotated
     //
-    if (classInitializerMethod != null) {
+    if (classInitializerMethod != null && !doesReplaceClass) {
       CompiledMethod cm = classInitializerMethod.getCurrentCompiledMethod();
       while (cm == null) {
         classInitializerMethod.compile();
