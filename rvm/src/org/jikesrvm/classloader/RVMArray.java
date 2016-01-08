@@ -30,6 +30,7 @@ import static org.jikesrvm.classloader.ClassLoaderConstants.*;
 import static org.jikesrvm.mm.mminterface.Barriers.*;
 
 import org.jikesrvm.ArchitectureSpecific;
+import org.jikesrvm.Options;
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.Barriers;
 import org.jikesrvm.mm.mminterface.HandInlinedScanning;
@@ -529,6 +530,14 @@ public final class RVMArray extends RVMType {
 
     // Initialize TIB slots for virtual methods (copy from superclass == Object)
     RVMType objectType = RVMType.JavaLangObjectType;
+    
+    //If our classloader is a container we resolve the local java.lang.Object;
+    if(Options.OpenJDKContainer && getClassLoader() instanceof OpenJDKContainerClassLoader) {
+      objectType = TypeReference.findOrCreate(getClassLoader(), Atom.findOrCreateAsciiAtom("Ljava.lang.Object;"))
+          .resolve();
+    }
+    
+    
     int retries = 0;
     while (!objectType.isInstantiated()) {
       try {

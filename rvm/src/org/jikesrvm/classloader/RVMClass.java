@@ -984,7 +984,6 @@ public final class RVMClass extends RVMType {
     // final fields
     this.constantPool = constantPool;
     this.modifiers = modifiers;
-    this.superClass = superClass;
     this.declaredInterfaces = declaredInterfaces;
     this.declaredFields = declaredFields;
     this.declaredMethods = declaredMethods;
@@ -995,6 +994,13 @@ public final class RVMClass extends RVMType {
     this.sourceName = sourceName;
     this.classInitializerMethod = classInitializerMethod;
     this.signature = signature;
+    
+    //Check if this class's parent is Object and we're in a container
+    if(superClass != null && superClass.isJavaLangObjectType() && getClassLoader() instanceof OpenJDKContainerClassLoader) {
+      this.superClass = TypeReference.findOrCreate(getClassLoader(), Atom.findOrCreateAsciiAtom("Ljava.lang.Object;")).resolve().asClass();
+    } else {
+      this.superClass = superClass;
+    }
 
     // non-final fields
     this.subClasses = emptyVMClass;
