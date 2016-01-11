@@ -777,6 +777,9 @@ public final class Atom {
   private static final byte[][] RVM_CLASS_PREFIXES =
       {"Lorg/jikesrvm/".getBytes(), "Lorg/vmmagic/".getBytes(), "Lorg/mmtk/".getBytes()};
 
+  private static final byte[] PRIMATIVE_TYPE_PREFIXES = 
+    {'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z'};
+  
   /**
    * @return true if this is a class descriptor of a bootstrap class
    * (ie a class that must be loaded by the bootstrap class loader)
@@ -822,6 +825,17 @@ public final class Atom {
         }
       }
       return true;
+    }
+    return false;
+  }
+  
+  @Pure
+  public boolean isPrimativeDescriptor() {
+    if(val.length != 1)
+      return false;
+    for(byte prim : PRIMATIVE_TYPE_PREFIXES) {
+      if(val[0] == prim)
+        return true;
     }
     return false;
   }
