@@ -56,6 +56,14 @@ public class BootstrapClassLoader extends java.lang.ClassLoader {
   public static String getBootstrapRepositories() {
     return bootstrapClassLoader.bootstrapClasspath;
   }
+  
+  /**
+   * @return List of places to be searched for VM classes and resources,
+   * by this classloader, in standard "classpath" format
+   */
+  public String getRepositories() {
+    return bootstrapClasspath;
+  }
 
   /**
    * Initialize for execution.
