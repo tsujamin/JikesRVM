@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.ArchitectureSpecific.LazyCompilationTrampoline;
+import org.jikesrvm.Options;
 import org.jikesrvm.VM;
 import org.jikesrvm.compilers.common.CompiledMethod;
 import org.jikesrvm.compilers.common.CompiledMethods;
@@ -76,6 +77,9 @@ public abstract class RVMMethod extends RVMMember {
   /** Cache of arrays of declared parameter annotations. */
   private static final ImmutableEntryHashMapRVM<RVMMethod, Annotation[][]> declaredParameterAnnotations =
     new ImmutableEntryHashMapRVM<RVMMethod, Annotation[][]>();
+    
+  /** Reference to method designated to replace this one when compiled */
+  private RVMMethod replacementMethod = null;
 
   /**
    * Construct a read method
@@ -632,8 +636,16 @@ public abstract class RVMMethod extends RVMMember {
 
     if (VM.TraceClassLoading && VM.runningVM) VM.sysWrite("RVMMethod: (begin) compiling " + this + "\n");
 
-    CompiledMethod cm = genCode();
-
+    CompiledMethod cm;
+    
+    // Compile the replacement method if one has been set
+    if(Options.OpenJDKContainer && replacementMethod != null) {
+      replacementMethod.compile();
+      cm = replacementMethod.getCurrentCompiledMethod();
+    } else {
+      cm = genCode();
+    }
+    
     // Ensure that cm wasn't invalidated while it was being compiled.
     synchronized (cm) {
       if (cm.isInvalid()) {
@@ -652,6 +664,16 @@ public abstract class RVMMethod extends RVMMember {
    * @return an object representing the compiled method
    */
   protected abstract CompiledMethod genCode();
+  
+  /**
+   * Set a replacement RVMMethod to be compiled in place of this one
+   */
+  protected void setReplacementMethod(RVMMethod m) {
+    replacementMethod = m;
+    //invalidate currently compiled method if target class has been instantiated already
+    if(getDeclaringClass().isInstantiated())
+      replaceCompiledMethod(null);
+  }
 
   //----------------------------------------------------------------//
   //                        Section 3.                              //
@@ -671,7 +693,7 @@ public abstract class RVMMethod extends RVMMember {
    *
    */
   public final synchronized void replaceCompiledMethod(CompiledMethod compiledMethod) {
-    if (VM.VerifyAssertions) VM._assert((this.isStatic() && getDeclaringClass().isResolved()) || getDeclaringClass().isInstantiated());
+    if (VM.VerifyAssertions) VM._assert(getDeclaringClass().isInstantiated());
     // If we're replacing with a non-null compiledMethod, ensure that is still valid!
     if (compiledMethod != null) {
       synchronized (compiledMethod) {

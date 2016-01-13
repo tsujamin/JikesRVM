@@ -1368,9 +1368,8 @@ public final class RVMClass extends RVMType {
     } else if (member instanceof RVMMethod) {
       RVMMethod targetMethod = (RVMMethod)targetMember;
       RVMMethod thisMethod = (RVMMethod)member;
-
-      targetMethod.replaceCompiledMethod(thisMethod.genCode());
-
+      
+      targetMethod.setReplacementMethod(thisMethod);
     }
   }
 
