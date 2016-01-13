@@ -777,7 +777,7 @@ public final class Atom {
   private static final byte[][] RVM_CLASS_PREFIXES =
       {"Lorg/jikesrvm/".getBytes(), "Lorg/vmmagic/".getBytes(), "Lorg/mmtk/".getBytes()};
 
-  private static final byte[] PRIMATIVE_TYPE_PREFIXES = 
+  private static final byte[] PRIMITVE_TYPE_PREFIXES = 
     {'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z'};
   
   /**
@@ -830,10 +830,10 @@ public final class Atom {
   }
   
   @Pure
-  public boolean isPrimativeDescriptor() {
+  public boolean isPrimitiveDescriptor() {
     if(val.length != 1)
       return false;
-    for(byte prim : PRIMATIVE_TYPE_PREFIXES) {
+    for(byte prim : PRIMITVE_TYPE_PREFIXES) {
       if(val[0] == prim)
         return true;
     }

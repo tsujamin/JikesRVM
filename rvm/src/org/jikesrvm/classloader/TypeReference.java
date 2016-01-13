@@ -241,7 +241,7 @@ public final class TypeReference {
       cl = bootstrapCL;
     } else if (cl != bootstrapCL) {
       if (cl instanceof OpenJDKContainerClassLoader) {
-        if (tn.isRVMDescriptor() || tn.isPrimativeDescriptor())
+        if (tn.isRVMDescriptor() || tn.isPrimitiveDescriptor())
           cl = bootstrapCL;
       } else {
         if (tn.isClassDescriptor()) {
