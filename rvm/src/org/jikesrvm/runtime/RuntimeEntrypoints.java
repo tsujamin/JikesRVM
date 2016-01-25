@@ -208,7 +208,7 @@ public class RuntimeEntrypoints implements ArchitectureSpecific.StackframeLayout
     RVMType lhsType = Magic.getObjectType(array);
     RVMType elmType = lhsType.asArray().getElementType();
 
-    if (elmType == RVMType.JavaLangObjectType) {
+    if (elmType == RVMType.JavaLangObjectType.fromClassloader(elmType.getClassLoader())) {
       return; // array of Object can receive anything
     }
 

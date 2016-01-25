@@ -258,7 +258,7 @@ public final class RVMArray extends RVMType {
   @Override
   @Pure
   public RVMField[] getStaticFields() {
-    return RVMType.JavaLangObjectType.getStaticFields();
+    return RVMType.JavaLangObjectType.fromClassloader(getClassLoader()).getStaticFields();
   }
 
   /**
@@ -267,7 +267,7 @@ public final class RVMArray extends RVMType {
   @Override
   @Pure
   public RVMField[] getInstanceFields() {
-    return RVMType.JavaLangObjectType.getInstanceFields();
+    return RVMType.JavaLangObjectType.fromClassloader(getClassLoader()).getInstanceFields();
   }
 
   /**
@@ -276,7 +276,7 @@ public final class RVMArray extends RVMType {
   @Override
   @Pure
   public RVMMethod[] getStaticMethods() {
-    return RVMType.JavaLangObjectType.getStaticMethods();
+    return RVMType.JavaLangObjectType.fromClassloader(getClassLoader()).getStaticMethods();
   }
 
   /**
@@ -285,7 +285,7 @@ public final class RVMArray extends RVMType {
   @Override
   @Pure
   public RVMMethod[] getVirtualMethods() {
-    return RVMType.JavaLangObjectType.getVirtualMethods();
+    return RVMType.JavaLangObjectType.fromClassloader(getClassLoader()).getVirtualMethods();
   }
 
   /**
@@ -477,7 +477,7 @@ public final class RVMArray extends RVMType {
       // build a type information block for this new array type by copying the
       // virtual method fields and substituting an appropriate type field.
       //
-      TIB javaLangObjectTIB = RVMType.JavaLangObjectType.getTypeInformationBlock();
+      TIB javaLangObjectTIB = RVMType.JavaLangObjectType.fromClassloader(getClassLoader()).getTypeInformationBlock();
 
       int alignCode = elementType.isReferenceType() ? HandInlinedScanning.referenceArray() : HandInlinedScanning.primitiveArray();
       TIB allocatedTib = MemoryManager.newTIB(javaLangObjectTIB.numVirtualMethods(), alignCode);
@@ -529,14 +529,7 @@ public final class RVMArray extends RVMType {
     }
 
     // Initialize TIB slots for virtual methods (copy from superclass == Object)
-    RVMType objectType = RVMType.JavaLangObjectType;
-    
-    //If our classloader is a container we resolve the local java.lang.Object;
-    if(Options.OpenJDKContainer && getClassLoader() instanceof OpenJDKContainerClassLoader) {
-      objectType = TypeReference.findOrCreate(getClassLoader(), Atom.findOrCreateAsciiAtom("Ljava.lang.Object;"))
-          .resolve();
-    }
-    
+    RVMType objectType = RVMType.JavaLangObjectType.fromClassloader(getClassLoader());    
     
     int retries = 0;
     while (!objectType.isInstantiated()) {
@@ -1116,7 +1109,7 @@ public final class RVMArray extends RVMType {
       RVMType lhs = Magic.getObjectType(dst).asArray().getElementType();
       RVMType rhs = Magic.getObjectType(src).asArray().getElementType();
 
-      if ((lhs == rhs) || (lhs == RVMType.JavaLangObjectType) || RuntimeEntrypoints.isAssignableWith(lhs, rhs)) {
+      if ((lhs == rhs) || (lhs == RVMType.JavaLangObjectType.fromClassloaderOf(lhs) || RuntimeEntrypoints.isAssignableWith(lhs, rhs))) {
         arraycopyNoCheckcast(src, srcIdx, dst, dstIdx, len);
       } else {
         arraycopyPiecemeal(src, srcIdx, dst, dstIdx, len);

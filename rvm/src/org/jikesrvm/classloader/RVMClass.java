@@ -998,14 +998,8 @@ public final class RVMClass extends RVMType {
     this.sourceName = sourceName;
     this.classInitializerMethod = classInitializerMethod;
     this.signature = signature;
-    this.doesReplaceClass = isAnnotationDeclared(TypeReference.ReplaceClass);
-    
-    //Check if this class's parent is Object and we're in a container
-    if(superClass != null && superClass.isJavaLangObjectType() && getClassLoader() instanceof OpenJDKContainerClassLoader) {
-      this.superClass = TypeReference.findOrCreate(getClassLoader(), Atom.findOrCreateAsciiAtom("Ljava.lang.Object;")).resolve().asClass();
-    } else {
-      this.superClass = superClass;
-    }
+    this.doesReplaceClass = isAnnotationDeclared(TypeReference.ReplaceClass);    
+    this.superClass = (superClass != null) ? superClass.fromClassloader(typeRef.getClassLoader()).asClass() : null;
 
     // non-final fields
     this.subClasses = emptyVMClass;

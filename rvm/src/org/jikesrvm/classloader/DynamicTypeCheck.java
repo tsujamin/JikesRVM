@@ -120,7 +120,7 @@ public class DynamicTypeCheck {
       tsi = MemoryManager.newNonMovingShortArray(size);
       RVMType p;
       if (t.isArrayType() || t.asClass().isInterface()) {
-        p = RVMType.JavaLangObjectType;
+        p = RVMType.JavaLangObjectType.fromClassloaderOf(t);
       } else {
         p = t.asClass().getSuperClass();
       }
@@ -281,7 +281,7 @@ public class DynamicTypeCheck {
       return instanceOfNonArray(LHSType.asClass(), RHSType.getTypeInformationBlock());
     }
     RVMType LHSInnermostElementType = LHSType.asArray().getInnermostElementType();
-    if (LHSInnermostElementType == RVMType.JavaLangObjectType) {
+    if (LHSInnermostElementType == RVMType.JavaLangObjectType.fromClassloaderOf(LHSInnermostElementType)) {
       if (RHSDimension < LHSDimension) return false;
       if (RHSDimension > LHSDimension) return true;
       return RHSType.asArray().getInnermostElementType().isClassType(); // !primitive

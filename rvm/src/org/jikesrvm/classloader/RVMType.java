@@ -14,6 +14,7 @@ package org.jikesrvm.classloader;
 
 import static org.jikesrvm.SizeConstants.LOG_BYTES_IN_ADDRESS;
 
+import org.jikesrvm.Options;
 import org.jikesrvm.ArchitectureSpecific.CodeArray;
 import org.jikesrvm.VM;
 import org.jikesrvm.mm.mminterface.AlignmentEncoding;
@@ -430,6 +431,26 @@ public abstract class RVMType extends AnnotatedElement {
   public final UnboxedType asUnboxedType() {
     return (UnboxedType) this;
   }
+  
+  /**
+   * @return this type loaded in specified classloader
+   */
+  public final RVMType fromClassloader(ClassLoader cl) {
+    if(cl == null || cl == this.typeRef.classloader || !VM.runningVM || !Options.OpenJDKContainer)
+      return this;
+    return TypeReference.findOrCreate(cl, this.typeRef.name).resolve();
+  }
+  
+  /**
+   * @return this type loaded in the classloader of the specified type
+   */
+  public final RVMType fromClassloaderOf(RVMType type) {
+    if(type == null) 
+      return this;
+    
+    return fromClassloader(type.getClassLoader());
+  }
+  
   // Convenience methods.
   //
   /** @return is this type void? */
@@ -867,7 +888,7 @@ public abstract class RVMType extends AnnotatedElement {
       RVMType type = RVMType.getType(i);
       if (type.isArrayType() && type.isResolved()) {
         TIB arrayTIB = type.getTypeInformationBlock();
-        TIB objectTIB = RVMType.JavaLangObjectType.getTypeInformationBlock();
+        TIB objectTIB = RVMType.JavaLangObjectType.fromClassloaderOf(type).getTypeInformationBlock();
         Offset virtualMethodOffset = m.getOffset();
         CodeArray virtualMethod = objectTIB.getVirtualMethod(virtualMethodOffset);
         arrayTIB.setVirtualMethod(virtualMethodOffset, virtualMethod);

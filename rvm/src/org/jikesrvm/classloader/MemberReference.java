@@ -88,7 +88,7 @@ public abstract class MemberReference {
     MemberReference key;
     if (md.isMethodDescriptor()) {
       if (tRef.isArrayType() && !tRef.isUnboxedArrayType()) {
-        tRef = RVMType.JavaLangObjectType.getTypeRef();
+        tRef = RVMType.JavaLangObjectType.fromClassloader(tRef.getClassLoader()).getTypeRef();
       }
       key = new MethodReference(tRef, mn, md, nextId + 1);
     } else {

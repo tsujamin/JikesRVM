@@ -1594,7 +1594,8 @@ public abstract class TemplateCompilerFramework
           }
 
           RVMArray array = (RVMArray) arrayRef.peekType();
-          if (RVMType.JavaLangObjectType.isInstantiated()) {
+          
+          if (RVMType.JavaLangObjectType.fromClassloaderOf(array).isInstantiated()) {
             // If we've already instantiated java.lang.Object, then we can
             // forcibly fully instantiate the array type as long as the element type is
             // either already initialized or is in the bootimage.
