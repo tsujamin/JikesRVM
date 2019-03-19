@@ -1,3 +1,5 @@
+# This fork is incomplete and cannot boot against OpenJDK - it is left as a reference for others following this path
+
 ## Jikes Research Virtual Machine
 
 Jikes RVM (Research Virtual Machine) provides a flexible open testbed to prototype virtual machine technologies and experiment with a large variety of design alternatives. The system is licensed under the [EPL](http://www.eclipse.org/legal/epl-v10.html), an [OSI](http://www.opensource.org/) approved license. Jikes RVM runs on IA32 32 bit (64 bit support is work in progress) and PowerPC (big endian only).
